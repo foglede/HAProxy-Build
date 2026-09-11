@@ -21,7 +21,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v4
 
       # Install musl-tools for static compilation
       - name: Install musl-tools
@@ -55,7 +55,7 @@ jobs:
 
       # Cache PCRE2 static library for use in other jobs/runs
       - name: Cache PCRE2 static library
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/pcre2_static
           key: pcre2-static-${{ runner.os }}-${{ hashFiles('**/pcre2_static/lib/**') }}
@@ -64,7 +64,7 @@ jobs:
 
       # Upload PCRE2 as artifact for other jobs to download
       - name: Upload PCRE2 static library artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v4
         with:
           name: pcre2-static-lib
           path: ${{ github.workspace }}/pcre2_static
@@ -95,7 +95,7 @@ jobs:
 
       # Cache zlib static library for use in other jobs/runs
       - name: Cache zlib static library
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/zlib_static
           key: zlib-static-${{ runner.os }}-${{ hashFiles('**/zlib_static/lib/**') }}
@@ -104,7 +104,7 @@ jobs:
 
       # Upload zlib as artifact for other jobs to download
       - name: Upload zlib static library artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v4
         with:
           name: zlib-static-lib
           path: ${{ github.workspace }}/zlib_static
@@ -126,21 +126,24 @@ jobs:
           wget https://www.haproxy.org/download/${hapuriver}/src/haproxy-${hapdluri}.tar.gz
           tar xvzf haproxy-${hapdluri}.tar.gz
           cd "haproxy-${hapdluri}"          
-          CC=musl-gcc LDFLAGS="-static -L${{ github.workspace }}/pcre2_static/lib -L${{ github.workspace }}/zlib_static/lib" \
-          CFLAGS="-I${{ github.workspace }}/pcre2_static/include -I${{ github.workspace }}/zlib_static/include" \
-          ./configure \
-            --with-pcre2=${{ github.workspace }}/pcre2_static \
-            --with-zlib=${{ github.workspace }}/zlib_static \
-            --disable-shared \
-            --enable-static \
+          make -j$(nproc) \
+            CC=musl-gcc \
+            LDFLAGS="-static -L${{ github.workspace }}/pcre2_static/lib -L${{ github.workspace }}/zlib_static/lib" \
+            CFLAGS="-I${{ github.workspace }}/pcre2_static/include -I${{ github.workspace }}/zlib_static/include" \
+            USE_PCRE2=1 \
+            PCRE2_INC=${{ github.workspace }}/pcre2_static/include \
+            PCRE2_LIB=${{ github.workspace }}/pcre2_static/lib \
+            USE_ZLIB=1 \
+            ZLIB_INC=${{ github.workspace }}/zlib_static/include \
+            ZLIB_LIB=${{ github.workspace }}/zlib_static/lib \
             TARGET=linux \
             ARCH=x86_64
-          make -j$(nproc)
-          make install DESTDIR=${{ github.workspace }}/haproxy_build
+
+            make install DESTDIR=${{ github.workspace }}/haproxy_build
 
       # Upload HAProxy binary
       - name: Upload HAProxy binary
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v4
         with:
           name: haproxy-static-binary
           path: ${{ github.workspace }}/haproxy_build/usr/local/sbin/haproxy
