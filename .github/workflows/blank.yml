@@ -141,12 +141,10 @@ jobs:
             cp haproxy ${{ github.workspace }}/haproxy
             strip ${{ github.workspace }}/haproxy
             file  ${{ github.workspace }}/haproxy
-            ldd  ${{ github.workspace }}/haproxy
             
       - name: viewproxy
         run: |
           file ${{ github.workspace }}/haproxy_build/usr/local/sbin/haproxy
-          ldd ${{ github.workspace }}/haproxy_build/usr/local/sbin/haproxy
 
       # Upload HAProxy binary
       - name: Upload HAProxy binary
@@ -154,4 +152,4 @@ jobs:
         with:
           name: haproxy-static-binary
           path: ${{ github.workspace }}/haproxy_build/usr/local/sbin/haproxy
-          retention-days: 30
+          retention-days: 3
