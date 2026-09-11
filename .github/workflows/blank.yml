@@ -48,7 +48,7 @@ jobs:
           cd "pcre2-${PCRE2_VERSION}"
           
           # Configure and build with musl-gcc for static compilation
-          CC=musl-gcc ./configure --prefix=${{ github.workspace }}/pcre2_static --enable-static --disable-shared
+          CC=musl-gcc ./configure --prefix=${{ github.workspace }}/pcre2_static --enable-static --disable-shared --disable-cpp
           make
           make install
           cd ..
@@ -90,9 +90,10 @@ jobs:
             LDFLAGS="-static -L${{ github.workspace }}/pcre2_static/lib" \
             CFLAGS="-I${{ github.workspace }}/pcre2_static/include" \
             USE_STATIC_PCRE2=1 \
+            USE_PCRE2_JIT=1 \
             PCRE2_INC=${{ github.workspace }}/pcre2_static/include \
             PCRE2_LIB=${{ github.workspace }}/pcre2_static/lib \
-            TARGET=linux-musl
+            TARGET=linux-glibc  ADDINC="-I/usr/include/x86_64-linux-gnu"
 
             make install DESTDIR=${{ github.workspace }}/haproxy_build
 
