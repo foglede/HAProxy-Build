@@ -25,7 +25,7 @@ jobs:
 
       # Install musl-tools for static compilation
       - name: Install musl-tools
-        run: sudo apt-get update && sudo apt-get install -y musl-tools build-essential gcc make git
+        run: sudo apt-get update && sudo apt-get install -y musl-tools build-essential gcc make git linux-headers-$(uname -r)
 
       # Build PCRE2 with static linking
       - name: Build PCRE2 static library
