@@ -94,7 +94,7 @@ jobs:
           
           ln -sf /usr/lib/libc.a /usr/lib/libmusl.a
           
-          make -j$(nproc) \ TARGET=linux-musl \
+          make -j$(nproc) all TARGET=linux-musl \
             LDFLAGS="-static" \
             USE_STATIC_PCRE2=1 \
             USE_PCRE2_JIT=1 \
