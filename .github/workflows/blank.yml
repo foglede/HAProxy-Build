@@ -135,7 +135,7 @@ jobs:
             USE_ZLIB=1 \
             ZLIB_INC=${{ github.workspace }}/zlib_static/include \
             ZLIB_LIB=${{ github.workspace }}/zlib_static/lib \
-            TARGET=linux-musl CC=musl-gcc
+            TARGET=linux-glibc
 
             make install DESTDIR=${{ github.workspace }}/haproxy_build
 
