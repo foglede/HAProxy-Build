@@ -66,7 +66,7 @@ jobs:
 
       # Upload PCRE2 as artifact for other jobs to download
       - name: Upload PCRE2 static library artifact
-        uses: actions/upload-artifact@v5 
+        uses: actions/upload-artifact@v5
         with:
           name: pcre2-static-lib
           path: ${{ github.workspace }}/pcre2_static
@@ -97,7 +97,7 @@ jobs:
 
       # Cache zlib static library for use in other jobs/runs
       - name: Cache zlib static library
-        uses: actions/cache@v5 
+        uses: actions/cache@v5
         with:
           path: ${{ github.workspace }}/zlib_static
           key: zlib-static-${{ runner.os }}-${{ hashFiles('**/zlib_static/lib/**') }}
@@ -106,7 +106,7 @@ jobs:
 
       # Upload zlib as artifact for other jobs to download
       - name: Upload zlib static library artifact
-        uses: actions/upload-artifact@v5 
+        uses: actions/upload-artifact@v5
         with:
           name: zlib-static-lib
           path: ${{ github.workspace }}/zlib_static
@@ -123,15 +123,15 @@ jobs:
       # Runs a single command using the runners shell
       - name: downhaproxy
         run: |
-         hapuriver=$(curl -s "https://git.haproxy.org/?a=project_index" | grep -oE 'haproxy-[0-9]+\.[0-9]+' | sed 's/haproxy-//' | sort -V | tail -n 1)
-         hapdluri=$(curl -s https://www.haproxy.org/download/${hapuriver}/src/CHANGELOG | grep -E '^[0-9]{4}/[0-9]{2}/[0-9]{2} ?: [0-9]+\.[0-9]+\.[0-9]+' | head -n 1 | awk '{print $3}')
-         wget https://www.haproxy.org/download/${hapuriver}/src/haproxy-${hapdluri}.tar.gz  
-         tar xzf haproxy-${hapdluri}.tar.gz
+          hapuriver=$(curl -s "https://git.haproxy.org/?a=project_index" | grep -oE 'haproxy-[0-9]+\.[0-9]+' | sed 's/haproxy-//' | sort -V | tail -n 1)
+          hapdluri=$(curl -s https://www.haproxy.org/download/${hapuriver}/src/CHANGELOG | grep -E '^[0-9]{4}/[0-9]{2}/[0-9]{2} ?: [0-9]+\.[0-9]+\.[0-9]+' | head -n 1 | awk '{print $3}')
+          wget https://www.haproxy.org/download/${hapuriver}/src/haproxy-${hapdluri}.tar.gz
+          tar xzf haproxy-${hapdluri}.tar.gz
           # 使用具体的目录名
           HAPROXY_DIR="haproxy-${hapdluri}"
           cd "$HAPROXY_DIR"
-         
-         CC=musl-gcc \
+          
+          CC=musl-gcc \
           LDFLAGS="-static -L${{ github.workspace }}/pcre2_static/lib -L${{ github.workspace }}/zlib_static/lib" \
           CFLAGS="-I${{ github.workspace }}/pcre2_static/include -I${{ github.workspace }}/zlib_static/include" \
           ./configure \
@@ -139,14 +139,14 @@ jobs:
             --with-zlib=${{ github.workspace }}/zlib_static \
             --disable-shared \
             --enable-static \
-             TARGET=linux \  
-             ARCH=x86_64
-            make -j$(nproc)
-            make install DESTDIR=${{ github.workspace }}/haproxy_build
+            TARGET=linux \
+            ARCH=x86_64
+          make -j$(nproc)
+          make install DESTDIR=${{ github.workspace }}/haproxy_build
 
-       # Upload HAProxy binary
+      # Upload HAProxy binary
       - name: Upload HAProxy binary
-        uses: actions/upload-artifact@v5 
+        uses: actions/upload-artifact@v5
         with:
           name: haproxy-static-binary
           path: ${{ github.workspace }}/haproxy_build/usr/local/sbin/haproxy
