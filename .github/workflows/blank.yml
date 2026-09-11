@@ -95,6 +95,7 @@ jobs:
             USE_PCRE2_JIT=1 \
             USE_LIBCRYPT= \
             USE_NS= \
+            USE_LINUX_CAP= \
             PCRE2_INC=${{ github.workspace }}/pcre2_static/include \
             PCRE2_LIB=${{ github.workspace }}/pcre2_static/lib \
             TARGET=linux-musl LD=musl-gcc
