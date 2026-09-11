@@ -13,29 +13,24 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build" 
+  # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    container:
-     image: alpine:latest
-     volumes:
-        - ${{ github.workspace }}:/workspace
-     options: --workdir /workspace
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under /workspace, so your job can access it
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v6
 
       # Install musl-tools for static compilation
       - name: Install musl-tools
-        run:  apk add --no-cache build-base linux-headers musl-dev make curl grep wget 	gcc libc-dev 
-                
+        run: sudo apt-get update && sudo apt-get install -y musl-tools build-essential linux-libc-dev linux-headers-generic linux-headers-$(uname -r) gcc make git 
+
       # Build PCRE2 with static linking
       - name: Build PCRE2 static library
         run: |
-          cd /workspace
+          cd ${{ github.workspace }}
           # 直接下载最新版本的PCRE2
           PCRE2_VERSION=$(curl -s https://api.github.com/repos/PCRE2Project/pcre2/releases/latest | grep -oP '"tag_name": "\K[^"]+')
           PCRE2_VERSION=${PCRE2_VERSION#pcre2-}
@@ -53,8 +48,8 @@ jobs:
           cd "pcre2-${PCRE2_VERSION}"
           
           # Configure and build with musl-gcc for static compilation
-          ./configure --prefix=/workspace/pcre2_static --enable-static --disable-shared 
-          make 
+          CC=musl-gcc ./configure --prefix=${{ github.workspace }}/pcre2_static --enable-static --disable-shared
+          make
           make install
           cd ..
 
@@ -62,7 +57,7 @@ jobs:
       - name: Cache PCRE2 static library
         uses: actions/cache@v6
         with:
-          path: /workspace/pcre2_static
+          path: ${{ github.workspace }}/pcre2_static
           key: pcre2-static-${{ runner.os }}-${{ hashFiles('**/pcre2_static/lib/**') }}
           restore-keys: |
             pcre2-static-${{ runner.os }}-
@@ -72,16 +67,16 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: pcre2-static-lib
-          path: /workspace/pcre2_static
+          path: ${{ github.workspace }}/pcre2_static
           retention-days: 30
 
       # Export PCRE2 environment variables
       - name: Export PCRE2 environment variables
         run: |
-          echo "PCRE2_PREFIX=/workspace/pcre2_static" >> $GITHUB_ENV
-          echo "PCRE2_LDFLAGS=-L/workspace/pcre2_static/lib -lpcre2-8" >> $GITHUB_ENV
-          echo "PCRE2_CFLAGS=-I/workspace/pcre2_static/include" >> $GITHUB_ENV
-          echo "PKG_CONFIG_PATH=/workspace/pcre2_static/lib/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
+          echo "PCRE2_PREFIX=${{ github.workspace }}/pcre2_static" >> $GITHUB_ENV
+          echo "PCRE2_LDFLAGS=-L${{ github.workspace }}/pcre2_static/lib -lpcre2-8" >> $GITHUB_ENV
+          echo "PCRE2_CFLAGS=-I${{ github.workspace }}/pcre2_static/include" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=${{ github.workspace }}/pcre2_static/lib/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
 
       # Runs a single command using the runners shell
       - name: downhaproxy
@@ -89,42 +84,32 @@ jobs:
           hapuriver=$(curl -s "https://git.haproxy.org/?a=project_index" | grep -oE 'haproxy-[0-9]+\.[0-9]+' | sed 's/haproxy-//' | sort -V | tail -n 1)
           hapdluri=$(curl -s "https://www.haproxy.org/download/${hapuriver}/src/CHANGELOG" | grep -E '^[0-9]{4}/[0-9]{2}/[0-9]{2} ?: [0-9]+\.[0-9]+\.[0-9]+' | head -n 1 | awk '{print $3}')
           wget https://www.haproxy.org/download/${hapuriver}/src/haproxy-${hapdluri}.tar.gz
-          tar xvf haproxy-${hapdluri}.tar.gz
-          cd "haproxy-${hapdluri}"
-             
-          make -j$(nproc) all TARGET=linux-musl CC=gcc LD=gcc \
-            LDFLAGS="-static" \
+          tar xvzf haproxy-${hapdluri}.tar.gz
+          cd "haproxy-${hapdluri}"          
+          make -j$(nproc) \
+            LDFLAGS="-static -L${{ github.workspace }}/pcre2_static/lib" \
+            CFLAGS="-I${{ github.workspace }}/pcre2_static/include" \
             USE_STATIC_PCRE2=1 \
             USE_PCRE2_JIT=1 \
-            USE_LIBCRYPT= \
-            USE_NS= \
-            USE_LINUX_CAP= \
-            USE_OPENSSL= USE_QUIC= USE_QUIC_OPENSSL_COMPAT= USE_LUA= \
-            PCRE2_INC=/workspace/pcre2_static/include \
-            PCRE2_LIB=/workspace/pcre2_static/lib \
-            CFLAGS="-O3 -Wno-nonnull -static" \
-            LDFLAGS="-static -no-pie -static-libgcc -s" \
-            ADDLIB='/usr/lib/libmusl.a' \
-            haproxy
-            
-            make install TARGET=linux-musl LDFLAGS="-static" DESTDIR=/workspace/haproxy_build
+            PCRE2_INC=${{ github.workspace }}/pcre2_static/include \
+            PCRE2_LIB=${{ github.workspace }}/pcre2_static/lib \
+            TARGET=linux-glibc haproxy 
 
-            cp haproxy /workspace/haproxy
-            strip /workspace/haproxy
-            file  /workspace/haproxy
-            ldd  /workspace/haproxy
+            make install DESTDIR=${{ github.workspace }}/haproxy_build
+            cp haproxy ${{ github.workspace }}/haproxy
+            strip ${{ github.workspace }}/haproxy
+            file  ${{ github.workspace }}/haproxy
+            ldd  ${{ github.workspace }}/haproxy
             
       - name: viewproxy
         run: |
-          file /workspace/haproxy_build/usr/local/sbin/haproxy
-          ldd /workspace/haproxy_build/usr/local/sbin/haproxy
+          file ${{ github.workspace }}/haproxy_build/usr/local/sbin/haproxy
+          ldd ${{ github.workspace }}/haproxy_build/usr/local/sbin/haproxy
 
       # Upload HAProxy binary
       - name: Upload HAProxy binary
         uses: actions/upload-artifact@v6
         with:
           name: haproxy-static-binary
-          path: /workspace/haproxy
+          path: ${{ github.workspace }}/haproxy_build/usr/local/sbin/haproxy
           retention-days: 30
-            # Runs a single command using the runners shell
-            
