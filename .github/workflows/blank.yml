@@ -88,7 +88,7 @@ jobs:
           cd "haproxy-${hapdluri}"          
           make -j$(nproc) \
             LDFLAGS="-static -L${{ github.workspace }}/pcre2_static/lib" \
-            CFLAGS="-std=c11 -D_GNU_SOURCE -U_FORTIFY_SOURCE -fno-stack-protector -I${{ github.workspace }}/pcre2_static/include" \
+            CFLAGS="-std=gnu11 -march=i686 -D_GNU_SOURCE -U_FORTIFY_SOURCE -fno-stack-protector -I${{ github.workspace }}/pcre2_static/include" \
             USE_STATIC_PCRE2=1 \
             USE_PCRE2_JIT=1 \
             USE_LIBCRYPT= \
