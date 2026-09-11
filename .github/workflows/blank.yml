@@ -137,10 +137,11 @@ jobs:
             USE_PCRE2_JIT=1 \
             PCRE2_INC="${{ github.workspace }}/pcre2_static/include" \
             PCRE2_LIB="${{ github.workspace }}/pcre2_static/lib" \
-            CFLAGS="-D_GNU_SOURCE -I/usr/include -I/usr/include/x86_64-linux-gnu -I${{ github.workspace }}/pcre2_static/include" \
+            CFLAGS="-D_GNU_SOURCE -Wno-error=unknown-warning-option -Wno-unknown-warning-option -I/usr/include -I/usr/include/x86_64-linux-gnu -I${{ github.workspace }}/pcre2_static/include" \
             LDFLAGS="-static -L${{ github.workspace }}/pcre2_static/lib" \
             ADDLIB="-lz" \
-            SPEC_CFLAGS=""
+            SPEC_CFLAGS=""  \
+            NOWARN_CFLAGS="" 
             
             make install DESTDIR=${{ github.workspace }}/haproxy_build
 
