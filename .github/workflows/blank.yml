@@ -37,7 +37,7 @@ jobs:
           pcreuri=$(basename $(curl -sL -o /dev/null -w "%{url_effective}" https://github.com/PCRE2Project/pcre2/releases/latest))
           downpuri="https://github.com/PCRE2Project/pcre2/releases/download/${pcreuri}/${pcreuri}.tar.gz"
           wget $downpuri
-          tar xzf pcreuri.tar.gz
+          tar xzf ${pcreuri}.tar.gz
           cd $pcreuri
           
           # Configure and build with musl-gcc for static compilation
