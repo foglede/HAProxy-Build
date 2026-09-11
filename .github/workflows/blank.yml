@@ -90,7 +90,6 @@ jobs:
             LDFLAGS="-static -L${{ github.workspace }}/pcre2_static/lib" \
             CFLAGS="-I${{ github.workspace }}/pcre2_static/include" \
             USE_STATIC_PCRE2=1 \
-            USE_PCRE2_JIT=1 \
             PCRE2_INC=${{ github.workspace }}/pcre2_static/include \
             PCRE2_LIB=${{ github.workspace }}/pcre2_static/lib \
             TARGET=linux-glibc haproxy 
