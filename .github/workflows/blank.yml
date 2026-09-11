@@ -46,9 +46,37 @@ jobs:
           make install
           cd ..
 
+      # Cache PCRE2 static library for use in other jobs/runs
+      - name: Cache PCRE2 static library
+        uses: actions/cache@v3
+        with:
+          path: ${{ github.workspace }}/pcre2_static
+          key: pcre2-static-${{ runner.os }}-${{ hashFiles('**/pcre2_static/lib/**') }}
+          restore-keys: |
+            pcre2-static-${{ runner.os }}-
+
+      # Upload PCRE2 as artifact for other jobs to download
+      - name: Upload PCRE2 static library artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: pcre2-static-lib
+          path: ${{ github.workspace }}/pcre2_static
+          retention-days: 30
+
+      # Export environment variables for subsequent steps
+      - name: Export PCRE2 environment variables
+        run: |
+          echo "PCRE2_PREFIX=${{ github.workspace }}/pcre2_static" >> $GITHUB_ENV
+          echo "PCRE2_LDFLAGS=-L${{ github.workspace }}/pcre2_static/lib -lpcre2-8" >> $GITHUB_ENV
+          echo "PCRE2_CFLAGS=-I${{ github.workspace }}/pcre2_static/include" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=${{ github.workspace }}/pcre2_static/lib/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
+
       # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - name: zlib
+        run: |
+         wget 'https://zlib.net/current/zlib.tar.gz'
+         tar xzf zlib.tar.gz
+         
 
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
