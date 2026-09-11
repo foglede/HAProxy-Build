@@ -78,6 +78,46 @@ jobs:
           echo "PCRE2_CFLAGS=-I${{ github.workspace }}/pcre2_static/include" >> $GITHUB_ENV
           echo "PKG_CONFIG_PATH=${{ github.workspace }}/pcre2_static/lib/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
 
+      # Build zlib with static linking
+      - name: Build zlib static library
+        run: |
+          cd ${{ github.workspace }}
+          # Download and extract zlib
+          wget 'https://zlib.net/current/zlib.tar.gz'
+          tar xzf zlib.tar.gz
+          cd zlib-*
+          
+          # Configure and build with musl-gcc for static compilation
+          CC=musl-gcc ./configure --prefix=${{ github.workspace }}/zlib_static --static
+          make
+          make install
+          cd ..
+
+      # Cache zlib static library for use in other jobs/runs
+      - name: Cache zlib static library
+        uses: actions/cache@v6
+        with:
+          path: ${{ github.workspace }}/zlib_static
+          key: zlib-static-${{ runner.os }}-${{ hashFiles('**/zlib_static/lib/**') }}
+          restore-keys: |
+            zlib-static-${{ runner.os }}-
+
+      # Upload zlib as artifact for other jobs to download
+      - name: Upload zlib static library artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: zlib-static-lib
+          path: ${{ github.workspace }}/zlib_static
+          retention-days: 30
+
+      # Export zlib environment variables
+      - name: Export zlib environment variables
+        run: |
+          echo "ZLIB_PREFIX=${{ github.workspace }}/zlib_static" >> $GITHUB_ENV
+          echo "ZLIB_LDFLAGS=-L${{ github.workspace }}/zlib_static/lib -lz" >> $GITHUB_ENV
+          echo "ZLIB_CFLAGS=-I${{ github.workspace }}/zlib_static/include" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=${{ github.workspace }}/zlib_static/lib/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
+
       # Runs a single command using the runners shell
       - name: downhaproxy
         run: |
@@ -87,23 +127,17 @@ jobs:
           tar xvzf haproxy-${hapdluri}.tar.gz
           cd "haproxy-${hapdluri}"          
           make -j$(nproc) \
-            LDFLAGS="-static -L${{ github.workspace }}/pcre2_static/lib" \
-            CFLAGS="-I${{ github.workspace }}/pcre2_static/include" \
+            LDFLAGS="-static -L${{ github.workspace }}/pcre2_static/lib -L${{ github.workspace }}/zlib_static/lib" \
+            CFLAGS="-I${{ github.workspace }}/pcre2_static/include -I${{ github.workspace }}/zlib_static/include" \
             USE_PCRE2=1 \
             PCRE2_INC=${{ github.workspace }}/pcre2_static/include \
             PCRE2_LIB=${{ github.workspace }}/pcre2_static/lib \
-            TARGET=linux-glibc haproxy 
+            USE_ZLIB=1 \
+            ZLIB_INC=${{ github.workspace }}/zlib_static/include \
+            ZLIB_LIB=${{ github.workspace }}/zlib_static/lib \
+            TARGET=linux-glibc
 
             make install DESTDIR=${{ github.workspace }}/haproxy_build
-            cp haproxy ${{ github.workspace }}/haproxy
-            strip ${{ github.workspace }}/haproxy
-            file  ${{ github.workspace }}/haproxy
-            ldd  ${{ github.workspace }}/haproxy
-            
-      - name: viewproxy
-        run: |
-          file ${{ github.workspace }}/haproxy_build/usr/local/sbin/haproxy
-          ldd ${{ github.workspace }}/haproxy_build/usr/local/sbin/haproxy
 
       # Upload HAProxy binary
       - name: Upload HAProxy binary
