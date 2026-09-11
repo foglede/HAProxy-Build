@@ -93,7 +93,7 @@ jobs:
             USE_PCRE2_JIT=1 \
             PCRE2_INC=${{ github.workspace }}/pcre2_static/include \
             PCRE2_LIB=${{ github.workspace }}/pcre2_static/lib \
-            TARGET=linux-musl CPU_CFLAGS="-O2 -mavx2"
+            TARGET=linux-musl CPU_CFLAGS="-O2 -mavx2" LD=musl-gcc 
             
             make install DESTDIR=${{ github.workspace }}/haproxy_build
 
