@@ -103,7 +103,12 @@ jobs:
             PCRE2_LIB=/workspace/pcre2_static/lib \
             haproxy
             
-            make install DESTDIR=/workspace/haproxy_build
+            make install TARGET=linux-musl LDFLAGS="-static" DESTDIR=/workspace/haproxy_build
+            
+      - name: downhaproxy
+        run: |
+          file /workspace/haproxy_build/usr/local/sbin/haproxy
+          ldd /workspace/haproxy_build/usr/local/sbin/haproxy
 
       # Upload HAProxy binary
       - name: Upload HAProxy binary
@@ -114,6 +119,3 @@ jobs:
           retention-days: 30
             # Runs a single command using the runners shell
             
-      - name: downhaproxy
-        run: |
-          ldd /workspace/haproxy_build/usr/local/sbin/haproxy
