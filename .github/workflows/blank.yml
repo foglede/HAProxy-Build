@@ -33,12 +33,21 @@ jobs:
       - name: Build PCRE2 static library
         run: |
           cd ${{ github.workspace }}
-          # Download and extract PCRE2
-          pcreuri=$(basename $(curl -sL -o /dev/null -w "%{url_effective}" https://github.com/PCRE2Project/pcre2/releases/latest))
-          downpuri="https://github.com/PCRE2Project/pcre2/releases/download/${pcreuri}/${pcreuri}.tar.gz"
-          wget $downpuri
-          tar xzf *.tar.gz
-          cd ${pcreuri}
+          # 直接下载最新版本的PCRE2
+          PCRE2_VERSION=$(curl -s https://api.github.com/repos/PCRE2Project/pcre2/releases/latest | grep -oP '"tag_name": "\K[^"]+')
+          PCRE2_VERSION=${PCRE2_VERSION#pcre2-}
+          
+          # 下载PCRE2源码
+          wget -q "https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${PCRE2_VERSION}/pcre2-${PCRE2_VERSION}.tar.gz"
+          
+          # 验证下载的文件
+          if [ ! -f "pcre2-${PCRE2_VERSION}.tar.gz" ]; then
+            echo "Failed to download PCRE2"
+            exit 1
+          fi
+          
+          tar xzf "pcre2-${PCRE2_VERSION}.tar.gz"
+          cd "pcre2-${PCRE2_VERSION}"
           
           # Configure and build with musl-gcc for static compilation
           CC=musl-gcc ./configure --prefix=${{ github.workspace }}/pcre2_static --enable-static --disable-shared
