@@ -118,29 +118,23 @@ jobs:
           echo "ZLIB_CFLAGS=-I${{ github.workspace }}/zlib_static/include" >> $GITHUB_ENV
           echo "PKG_CONFIG_PATH=${{ github.workspace }}/zlib_static/lib/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
 
-      # TARGET=linux-glibc
+      # Runs a single command using the runners shell
       - name: downhaproxy
         run: |
           hapuriver=$(curl -s "https://git.haproxy.org/?a=project_index" | grep -oE 'haproxy-[0-9]+\.[0-9]+' | sed 's/haproxy-//' | sort -V | tail -n 1)
           hapdluri=$(curl -s "https://www.haproxy.org/download/${hapuriver}/src/CHANGELOG" | grep -E '^[0-9]{4}/[0-9]{2}/[0-9]{2} ?: [0-9]+\.[0-9]+\.[0-9]+' | head -n 1 | awk '{print $3}')
           wget https://www.haproxy.org/download/${hapuriver}/src/haproxy-${hapdluri}.tar.gz
           tar xvzf haproxy-${hapdluri}.tar.gz
-          cd "haproxy-${hapdluri}"
-
-          #sudo ln -sf /usr/include/x86_64-linux-gnu/asm /usr/include/asm
-          #sudo ln -sf /usr/include/linux /usr/include/linux
-          
+          cd "haproxy-${hapdluri}"          
           make -j$(nproc) \
-            TARGET=linux-glibc \
-            CC=musl-gcc \
+            LDFLAGS="-static -L${{ github.workspace }}/pcre2_static/lib" \
+            CFLAGS="-I${{ github.workspace }}/pcre2_static/include" \
             USE_STATIC_PCRE2=1 \
             USE_PCRE2_JIT=1 \
-            PCRE2_INC="${{ github.workspace }}/pcre2_static/include" \
-            PCRE2_LIB="${{ github.workspace }}/pcre2_static/lib" \
-            CFLAGS="-I${{ github.workspace }}/pcre2_static/include" \
-            LDFLAGS="-static -L${{ github.workspace }}/pcre2_static/lib" \
-            ADDLIB="-lz" 
-            
+            PCRE2_INC=${{ github.workspace }}/pcre2_static/include \
+            PCRE2_LIB=${{ github.workspace }}/pcre2_static/lib \
+            TARGET=linux-glibc
+
             make install DESTDIR=${{ github.workspace }}/haproxy_build
 
       # Upload HAProxy binary
