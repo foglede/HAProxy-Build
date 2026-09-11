@@ -30,7 +30,7 @@ jobs:
 
       # Install musl-tools for static compilation
       - name: Install musl-tools
-        run:  apk add --no-cache  build-base musl-dev musl-libc-static gcc make git curl linux-headers  wget  grep
+        run:  apk add --no-cache build-base musl-dev gcc make git curl linux-headers wget grep
         
       # Build PCRE2 with static linking
       - name: Build PCRE2 static library
@@ -91,7 +91,7 @@ jobs:
           wget https://www.haproxy.org/download/${hapuriver}/src/haproxy-${hapdluri}.tar.gz
           tar xvf haproxy-${hapdluri}.tar.gz
           cd "haproxy-${hapdluri}"
-          make -j$(nproc) \ TARGET=linux-musl \
+          make -j$(nproc) \ TARGET=linux-glibc \
             LDFLAGS="-static" \
             USE_STATIC_PCRE2=1 \
             USE_PCRE2_JIT=1 \
@@ -101,7 +101,7 @@ jobs:
             USE_OPENSSL= USE_QUIC= USE_QUIC_OPENSSL_COMPAT= USE_LUA= \
             PCRE2_INC=/workspace/pcre2_static/include \
             PCRE2_LIB=/workspace/pcre2_static/lib \
-            CFLAGS="-O2 -Wno-nonnull  -static" \
+            CFLAGS="-O3 -Wno-nonnull  -static" \
             LDFLAGS="-static -no-pie" \
             haproxy
             
