@@ -91,17 +91,15 @@ jobs:
           wget https://www.haproxy.org/download/${hapuriver}/src/haproxy-${hapdluri}.tar.gz
           tar xvf haproxy-${hapdluri}.tar.gz
           cd "haproxy-${hapdluri}"
-          make -j$(nproc) \
-            LDFLAGS="-static -L/workspace/pcre2_static/lib" \
+          make -j$(nproc) \ TARGET=linux-musl \
+            LDFLAGS="-static" \
             USE_STATIC_PCRE2=1 \
             USE_PCRE2_JIT=1 \
             USE_LIBCRYPT= \
             USE_NS= \
             USE_LINUX_CAP= \
             USE_OPENSSL= USE_QUIC= USE_QUIC_OPENSSL_COMPAT= USE_LUA= \
-            PCRE2_INC=/workspace/pcre2_static/include \
-            PCRE2_LIB=/workspace/pcre2_static/lib \
-            TARGET=linux-musl haproxy
+            haproxy
             
             make install DESTDIR=/workspace/haproxy_build
 
@@ -112,3 +110,8 @@ jobs:
           name: haproxy-static-binary
           path: /workspace/haproxy_build/usr/local/sbin/haproxy
           retention-days: 30
+            # Runs a single command using the runners shell
+            
+      - name: downhaproxy
+        run: |
+          ldd /workspace/haproxy_build/usr/local/sbin/haproxy
