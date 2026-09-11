@@ -49,7 +49,7 @@ jobs:
           
           # Configure and build with musl-gcc for static compilation
           CC=musl-gcc ./configure --prefix=${{ github.workspace }}/pcre2_static --enable-static --disable-shared --disable-cpp
-          make
+          make -s
           make install
           cd ..
 
@@ -91,6 +91,7 @@ jobs:
             CFLAGS="-I${{ github.workspace }}/pcre2_static/include" \
             USE_STATIC_PCRE2=1 \
             USE_PCRE2_JIT=1 \
+            USE_LIBCRYPT= \
             PCRE2_INC=${{ github.workspace }}/pcre2_static/include \
             PCRE2_LIB=${{ github.workspace }}/pcre2_static/lib \
             TARGET=linux-musl CPU_CFLAGS="-O2 -mavx2" LD=musl-gcc 
