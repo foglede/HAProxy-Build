@@ -48,7 +48,7 @@ jobs:
           cd "pcre2-${PCRE2_VERSION}"
           
           # Configure and build with musl-gcc for static compilation
-          CC=musl-gcc ./configure --prefix=${{ github.workspace }}/pcre2_static --enable-static --disable-shared --disable-cpp
+          CC=musl-gcc CFLAGS="-static" LDFLAGS="-static" ./configure --prefix=${{ github.workspace }}/pcre2_static --enable-static --disable-shared --disable-cpp  > /dev/null
           make -s
           make install
           cd ..
@@ -88,7 +88,7 @@ jobs:
           cd "haproxy-${hapdluri}"          
           make -j$(nproc) \
             LDFLAGS="-static -L${{ github.workspace }}/pcre2_static/lib" \
-            CFLAGS="-D_GNU_SOURCE -U_FORTIFY_SOURCE -fno-stack-protector -I${{ github.workspace }}/pcre2_static/include" \
+            CFLAGS="-std=c11 -D_GNU_SOURCE -U_FORTIFY_SOURCE -fno-stack-protector -I${{ github.workspace }}/pcre2_static/include" \
             USE_STATIC_PCRE2=1 \
             USE_PCRE2_JIT=1 \
             USE_LIBCRYPT= \
