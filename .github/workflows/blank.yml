@@ -57,7 +57,7 @@ jobs:
 
       # Cache PCRE2 static library for use in other jobs/runs
       - name: Cache PCRE2 static library
-        uses: actions/cache@v4 
+        uses: actions/cache@v5
         with:
           path: ${{ github.workspace }}/pcre2_static
           key: pcre2-static-${{ runner.os }}-${{ hashFiles('**/pcre2_static/lib/**') }}
@@ -66,7 +66,7 @@ jobs:
 
       # Upload PCRE2 as artifact for other jobs to download
       - name: Upload PCRE2 static library artifact
-        uses: actions/upload-artifact@v4 
+        uses: actions/upload-artifact@v5 
         with:
           name: pcre2-static-lib
           path: ${{ github.workspace }}/pcre2_static
@@ -97,7 +97,7 @@ jobs:
 
       # Cache zlib static library for use in other jobs/runs
       - name: Cache zlib static library
-        uses: actions/cache@v4 
+        uses: actions/cache@v5 
         with:
           path: ${{ github.workspace }}/zlib_static
           key: zlib-static-${{ runner.os }}-${{ hashFiles('**/zlib_static/lib/**') }}
@@ -106,7 +106,7 @@ jobs:
 
       # Upload zlib as artifact for other jobs to download
       - name: Upload zlib static library artifact
-        uses: actions/upload-artifact@v4 
+        uses: actions/upload-artifact@v5 
         with:
           name: zlib-static-lib
           path: ${{ github.workspace }}/zlib_static
@@ -144,7 +144,7 @@ jobs:
 
        # Upload HAProxy binary
       - name: Upload HAProxy binary
-        uses: actions/upload-artifact@v4 
+        uses: actions/upload-artifact@v5 
         with:
           name: haproxy-static-binary
           path: ${{ github.workspace }}/haproxy_build/usr/local/sbin/haproxy
