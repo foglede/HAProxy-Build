@@ -90,7 +90,6 @@ jobs:
             CC="musl-gcc -std=gnu99 -Iinclude" \
             SPEC_CFLAGS="-mno-cf-protection" \
             LDFLAGS="-static -L${{ github.workspace }}/pcre2_static/lib" \
-            COPTS='-DCONFIG_HAPROXY_VERSION="\""1.0.0"\"" -DCONFIG_HAPROXY_DATE="\""2026"\"" -D_GNU_SOURCE -U_FORTIFY_SOURCE -fno-stack-protector -I'${{ github.workspace }}'/pcre2_static/include' \
             USE_STATIC_PCRE2=1 \
             USE_PCRE2_JIT=1 \
             USE_LIBCRYPT= \
