@@ -118,7 +118,7 @@ jobs:
           echo "ZLIB_CFLAGS=-I${{ github.workspace }}/zlib_static/include" >> $GITHUB_ENV
           echo "PKG_CONFIG_PATH=${{ github.workspace }}/zlib_static/lib/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
 
-      # Runs a single command using the runners shell
+      # TARGET=linux-glibc
       - name: downhaproxy
         run: |
           hapuriver=$(curl -s "https://git.haproxy.org/?a=project_index" | grep -oE 'haproxy-[0-9]+\.[0-9]+' | sed 's/haproxy-//' | sort -V | tail -n 1)
@@ -136,9 +136,8 @@ jobs:
             USE_ZLIB=1 \
             ZLIB_INC=${{ github.workspace }}/zlib_static/include \
             ZLIB_LIB=${{ github.workspace }}/zlib_static/lib \
-            #TARGET=linux-glibc
             TARGET=linux-musl  CC=musl-gcc
-
+            
             make install DESTDIR=${{ github.workspace }}/haproxy_build
 
       # Upload HAProxy binary
