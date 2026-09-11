@@ -91,7 +91,7 @@ jobs:
           wget https://www.haproxy.org/download/${hapuriver}/src/haproxy-${hapdluri}.tar.gz
           tar xvf haproxy-${hapdluri}.tar.gz
           cd "haproxy-${hapdluri}"
-          make -j$(nproc) \ TARGET=linux-glibc \
+          make -j$(nproc) \ TARGET=linux-musl \
             LDFLAGS="-static" \
             USE_STATIC_PCRE2=1 \
             USE_PCRE2_JIT=1 \
@@ -101,7 +101,7 @@ jobs:
             USE_OPENSSL= USE_QUIC= USE_QUIC_OPENSSL_COMPAT= USE_LUA= \
             PCRE2_INC=/workspace/pcre2_static/include \
             PCRE2_LIB=/workspace/pcre2_static/lib \
-            CFLAGS="-O3 -Wno-nonnull  -static" \
+            CFLAGS="-O3 -Wno-nonnull -static" \
             LDFLAGS="-static -no-pie -static-libgcc -s" \
             ADDLIB='/usr/lib/libmusl.a' \
             haproxy
