@@ -25,6 +25,27 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v5
 
+      # Install musl-tools for static compilation
+      - name: Install musl-tools
+        run: sudo apt-get update && sudo apt-get install -y musl-tools build-essential gcc make git
+
+      # Build PCRE2 with static linking
+      - name: Build PCRE2 static library
+        run: |
+          cd ${{ github.workspace }}
+          # Download and extract PCRE2
+          pcreuri=$(basename $(curl -sL -o /dev/null -w "%{url_effective}" https://github.com/PCRE2Project/pcre2/releases/latest))
+          downpuri="https://github.com/PCRE2Project/pcre2/releases/download/${pcreuri}/${pcreuri}.tar.gz"
+          wget $downpuri
+          tar xzf pcreuri.tar.gz
+          cd $pcreuri
+          
+          # Configure and build with musl-gcc for static compilation
+          CC=musl-gcc ./configure --prefix=${{ github.workspace }}/pcre2_static --enable-static --disable-shared
+          make
+          make install
+          cd ..
+
       # Runs a single command using the runners shell
       - name: Run a one-line script
         run: echo Hello, world!
