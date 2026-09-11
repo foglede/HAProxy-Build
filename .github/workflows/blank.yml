@@ -93,8 +93,8 @@ jobs:
             USE_PCRE2_JIT=1 \
             PCRE2_INC=${{ github.workspace }}/pcre2_static/include \
             PCRE2_LIB=${{ github.workspace }}/pcre2_static/lib \
-            TARGET=linux-glibc CC=musl-gcc ADDINC="-I/usr/include/x86_64-linux-gnu"
-
+            TARGET=linux-glibc CC=cc 
+            
             make install DESTDIR=${{ github.workspace }}/haproxy_build
 
       # Upload HAProxy binary
