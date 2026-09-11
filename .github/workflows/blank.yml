@@ -87,8 +87,7 @@ jobs:
           tar xvf haproxy-${hapdluri}.tar.gz
           cd "haproxy-${hapdluri}"
           make -j$(nproc) \
-            CC="musl-gcc -std=gnu99 -Iinclude" \
-            SPEC_CFLAGS="-mno-cf-protection" \
+
             LDFLAGS="-static -L${{ github.workspace }}/pcre2_static/lib" \
             USE_STATIC_PCRE2=1 \
             USE_PCRE2_JIT=1 \
@@ -98,8 +97,7 @@ jobs:
             USE_OPENSSL= USE_QUIC= USE_QUIC_OPENSSL_COMPAT= USE_LUA= \
             PCRE2_INC=${{ github.workspace }}/pcre2_static/include \
             PCRE2_LIB=${{ github.workspace }}/pcre2_static/lib \
-            TARGET=linux-glibc \
-            LD=musl-gcc
+            TARGET=linux-glibc 
             
             make install DESTDIR=${{ github.workspace }}/haproxy_build
 
