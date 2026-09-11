@@ -99,6 +99,8 @@ jobs:
             USE_NS= \
             USE_LINUX_CAP= \
             USE_OPENSSL= USE_QUIC= USE_QUIC_OPENSSL_COMPAT= USE_LUA= \
+            PCRE2_INC=/workspace/pcre2_static/include \
+            PCRE2_LIB=/workspace/pcre2_static/lib \
             haproxy
             
             make install DESTDIR=/workspace/haproxy_build
