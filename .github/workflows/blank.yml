@@ -129,7 +129,9 @@ jobs:
           make -j$(nproc) \
             CFLAGS="-D_GNU_SOURCE -I/usr/include -I/usr/include/x86_64-linux-gnu -I${{ github.workspace }}/pcre2_static/include" \
             LDFLAGS="-static -L${{ github.workspace }}/pcre2_static/lib" \
-            ADDLIB="-lz" \
+            ADDLIB="-lz" \  
+            SPEC_CFLAGS="" \   
+            V=1 \
             USE_STATIC_PCRE2=1 \
             USE_PCRE2_JIT=1 \
             PCRE2_INC=${{ github.workspace }}/pcre2_static/include \
