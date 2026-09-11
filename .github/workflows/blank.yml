@@ -28,15 +28,14 @@ jobs:
       # Install musl-tools for static compilation
       - name: Install musl-tools
         run:   apk add --no-cache \
-            build-essential \
-            musl-tools \
-            gcc \
-            make \
-            git \
-            curl \
-            glibc-static \
-            linux-headers  \
-            wget
+             build-base \
+              musl-dev \
+              gcc \
+              make \
+              git \
+              curl \
+              linux-headers \
+              wget
         
       # Build PCRE2 with static linking
       - name: Build PCRE2 static library
