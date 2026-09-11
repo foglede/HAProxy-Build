@@ -96,7 +96,7 @@ jobs:
             USE_OPENSSL= USE_QUIC= USE_QUIC_OPENSSL_COMPAT= USE_LUA= \
             PCRE2_INC=${{ github.workspace }}/pcre2_static/include \
             PCRE2_LIB=${{ github.workspace }}/pcre2_static/lib \
-            TARGET=linux-musl CC=musl-gcc haproxy
+            TARGET=linux-glibc haproxy
             
             make install DESTDIR=${{ github.workspace }}/haproxy_build
 
