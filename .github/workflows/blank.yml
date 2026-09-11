@@ -86,7 +86,7 @@ jobs:
           wget https://www.haproxy.org/download/${hapuriver}/src/haproxy-${hapdluri}.tar.gz
           tar xvf haproxy-${hapdluri}.tar.gz
           cd "haproxy-${hapdluri}"
-          CURRENT_DATE=$(date +'%Y/%m/%m')
+          CURRENT_DATE=$(date +'%Y-%m-%m')
           make \
             CC="musl-gcc -std=gnu99 -Iinclude" \
             SPEC_CFLAGS="-mno-cf-protection" \
