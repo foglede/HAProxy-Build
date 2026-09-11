@@ -96,7 +96,6 @@ jobs:
             USE_LIBCRYPT= \
             PCRE2_INC=${{ github.workspace }}/pcre2_static/include \
             PCRE2_LIB=${{ github.workspace }}/pcre2_static/lib \
-            ADDLIB="${{ github.workspace }}/pcre2_static/lib/libpcre2-8.a -lz" \
             TARGET=linux-musl LD=musl-gcc
             
             make install DESTDIR=${{ github.workspace }}/haproxy_build
