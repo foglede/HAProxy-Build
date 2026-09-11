@@ -85,12 +85,13 @@ jobs:
           hapdluri=$(curl -s "https://www.haproxy.org/download/${hapuriver}/src/CHANGELOG" | grep -E '^[0-9]{4}/[0-9]{2}/[0-9]{2} ?: [0-9]+\.[0-9]+\.[0-9]+' | head -n 1 | awk '{print $3}')
           wget https://www.haproxy.org/download/${hapuriver}/src/haproxy-${hapdluri}.tar.gz
           tar xvf haproxy-${hapdluri}.tar.gz
-          cd "haproxy-${hapdluri}"          
+          cd "haproxy-${hapdluri}"
+          CURRENT_DATE=$(date +'%Y/%m/%m')
           make \
             CC="musl-gcc -std=gnu99 -Iinclude" \
             SPEC_CFLAGS="-mno-cf-protection" \
             LDFLAGS="-static -L${{ github.workspace }}/pcre2_static/lib" \
-            COPTS="-D_GNU_SOURCE -U_FORTIFY_SOURCE -fno-stack-protector -I${{ github.workspace }}/pcre2_static/include" \
+            COPTS="-DCONFIG_HAPROXY_VERSION=\"3.4.4\" -DCONFIG_HAPROXY_DATE=\"${CURRENT_DATE}\ -D_GNU_SOURCE -U_FORTIFY_SOURCE -fno-stack-protector -I${{ github.workspace }}/pcre2_static/include" \
             USE_STATIC_PCRE2=1 \
             USE_PCRE2_JIT=1 \
             USE_LIBCRYPT= \
