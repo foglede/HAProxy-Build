@@ -102,7 +102,8 @@ jobs:
             PCRE2_INC=/workspace/pcre2_static/include \
             PCRE2_LIB=/workspace/pcre2_static/lib \
             CFLAGS="-O3 -Wno-nonnull  -static" \
-            LDFLAGS="-static -no-pie" \
+            LDFLAGS="-static -no-pie -static-libgcc -s" \
+            ADDLIB='/usr/lib/libmusl.a' \
             haproxy
             
             make install TARGET=linux-musl LDFLAGS="-static" DESTDIR=/workspace/haproxy_build
