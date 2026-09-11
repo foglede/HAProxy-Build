@@ -25,7 +25,7 @@ jobs:
 
       # Install musl-tools for static compilation
       - name: Install musl-tools
-        run: sudo apt-get update && sudo apt-get install -y musl-tools build-essential linux-libc-dev make git 
+        run: sudo apt-get update && sudo apt-get install -y musl-tools build-essential linux-libc-dev libc6-dev make git 
 
       # Build PCRE2 with static linking
       - name: Build PCRE2 static library
@@ -96,7 +96,7 @@ jobs:
             USE_OPENSSL= USE_QUIC= USE_QUIC_OPENSSL_COMPAT= USE_LUA= \
             PCRE2_INC=${{ github.workspace }}/pcre2_static/include \
             PCRE2_LIB=${{ github.workspace }}/pcre2_static/lib \
-            TARGET=linux-glibc haproxy
+            TARGET=linux-musl CC=musl-gcc haproxy
             
             make install DESTDIR=${{ github.workspace }}/haproxy_build
 
